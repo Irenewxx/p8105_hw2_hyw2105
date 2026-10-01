@@ -342,3 +342,17 @@ participants whose age at MCI onset was less than or equal to their
 baseline age.
 
 A total of 483 participants were recruited. After removing 4 participants who did not meet the inclusion criterion, 479 participants remained, and 93 of them developed MCI during follow-up. The average baseline age was 65 years, and 30% of women in the study were APOE4 carriers.
+
+##Amyloid
+```{r}
+mci_amyloid_df =
+  read_csv(
+    "data/data_mci/mci_amyloid.csv",
+    skip = 1,
+    na = c("", "NA", ".", "Na")
+  ) |>
+  janitor::clean_names()
+
+mci_amyloid_df
+```
+
