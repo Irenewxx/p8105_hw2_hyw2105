@@ -135,3 +135,118 @@ n_a_ada_stations
 
 There are 60 distinct stations that serve the A train. Of
 these, 17 are ADA compliant.
+
+
+# Problem 2
+## Import and clean Trash Wheel data
+```{r}
+mr_trash_df =
+  readxl::read_excel(
+    "data/202509 Trash Wheel Collection Data.xlsx",
+    sheet = "Mr. Trash Wheel",
+    range = "A2:N710"
+  ) |>
+  janitor::clean_names() |>
+  drop_na(dumpster) |>
+  mutate(
+    sports_balls = as.integer(round(sports_balls)),
+    year = as.numeric(year),
+    trash_wheel = "mr"
+  )
+
+mr_trash_df
+```
+
+##Professor Trash Wheel and Gwynns Falls
+```{r}
+professor_trash_df =
+  readxl::read_excel(
+    "data/202509 Trash Wheel Collection Data.xlsx",
+    sheet = "Professor Trash Wheel",
+    range = "A2:M135"
+  ) |>
+  janitor::clean_names() |>
+  drop_na(dumpster) |>
+  mutate(
+    trash_wheel = "professor"
+  )
+
+professor_trash_df
+
+gwynnda_trash_df =
+  readxl::read_excel(
+    "data/202509 Trash Wheel Collection Data.xlsx",
+    sheet = "Gwynns Falls Trash Wheel",
+    range = "A2:L352"
+  ) |>
+  janitor::clean_names() |>
+  drop_na(dumpster) |>
+  mutate(
+    trash_wheel = "gwynnda"
+  )
+
+gwynnda_trash_df
+```
+
+There are 132 rows in professor_trash_df and 349 rows in gwynnda_trash_df.
+
+## Combine Trash Wheel datasets
+```{r}
+trash_wheel_df =
+  bind_rows(
+    mr_trash_df,
+    professor_trash_df,
+    gwynnda_trash_df
+  ) |>
+  relocate(trash_wheel)
+
+trash_wheel_df
+```
+There are 1,188 rows（707 + 132 + 349）and 15 columns，count(). And we can see there that mr has 707、professor has 132、gwynnda has 349.
+
+##filter → pull → vector summary
+```{r}
+professor_total_weight =
+  trash_wheel_df |>
+  filter(trash_wheel == "professor") |>
+  pull(weight_tons) |>
+  sum(na.rm = TRUE)
+
+gwynnda_june_2022_butts =
+  trash_wheel_df |>
+  filter(
+    trash_wheel == "gwynnda",
+    year == 2022,
+    month == "June"
+  ) |>
+  pull(cigarette_butts) |>
+  sum(na.rm = TRUE)
+
+professor_total_weight
+gwynnda_june_2022_butts
+```
+
+The data come from the September 2025 version of the Trash Wheel
+Collection Data. For each trash wheel, I specified the sheet and the cell
+range in `read_excel()` to skip the empty first row and exclude non-data
+columns, cleaned the variable names, and removed rows without a dumpster
+number (the grand total row at the bottom of each sheet). For Mr. Trash
+Wheel, I rounded `sports_balls` to the nearest integer and converted `year`
+from character to numeric so that it matches the other two sheets. I added
+a `trash_wheel` variable to each dataset before combining them with
+`bind_rows()`.
+
+The combined dataset contains `r nrow(trash_wheel_df)` observations, where
+each row is one dumpster collected by one of three trash wheels. Key
+variables include the collection date (`month`, `year`, `date`), the
+weight (`weight_tons`) and volume (`volume_cubic_yards`) of trash, and
+counts of specific items such as `plastic_bottles` and `cigarette_butts`.
+Some items were not recorded by every trash wheel: `sports_balls` is only
+available for Mr. Trash Wheel, and `glass_bottles` is not recorded for
+Gwynnda, so these values are missing for the corresponding rows. The
+`month` variable also has some inconsistent formatting in the original
+file (e.g., trailing spaces and lowercase entries).
+
+For available data, Professor Trash Wheel collected a total of
+282.26 tons of trash. Gwynnda collected a total of
+18120 cigarette butts in June 2022.
