@@ -59,3 +59,79 @@ a YES/NO character variable to a logical variable. The resulting dataset has
 These data are not tidy: route information is spread across 11 columns, so
 the route number is stored in the column names rather than as its own
 variable.
+
+
+## Problem1-question1: How many distinct stations?
+```{r}
+subway_df |>
+  distinct(line, station_name) |>
+  nrow()
+```
+There are 465 distinct stations.
+
+## Problem1-question2: How many stations are ADA compliant?
+```{r}
+subway_df |>
+  filter(ada == TRUE) |>
+  distinct(line, station_name) |>
+  nrow()
+```
+There are 84 ADA compliant.
+
+## Problem1-question3: What proportion of entrances / exits without vending allow entrance?
+```{r}
+subway_df |>
+  filter(vending == "NO") |>
+  pull(entry) |>
+  mean()
+```
+The mean is 0.3770492.
+
+
+## Reformat route information
+To make route number and route name distinct variables, I used
+`pivot_longer()` to convert `route1` to `route11` into two variables:
+`route_number` and `route_name`. Because most entrances serve only a few
+routes, many of the route columns were empty; I removed rows with missing
+`route_name`, since these do not correspond to any actual route.
+```{r}
+subway_tidy_df =
+  subway_df |>
+  pivot_longer(
+    route1:route11,
+    names_to = "route_number",
+    names_prefix = "route",
+    values_to = "route_name"
+  ) |>
+  drop_na(route_name)
+
+subway_tidy_df
+```
+The resulting dataset has 4270 rows and 10 columns, where each row represents one route
+served by one station entrance or exit.
+
+
+### Stations serving the A train
+
+```{r}
+n_a_stations =
+  subway_tidy_df |>
+  filter(route_name == "A") |>
+  distinct(line, station_name) |>
+  nrow()
+
+n_a_ada_stations =
+  subway_tidy_df |>
+  filter(
+    route_name == "A",
+    ada == TRUE
+  ) |>
+  distinct(line, station_name) |>
+  nrow()
+
+n_a_stations
+n_a_ada_stations
+```
+
+There are 60 distinct stations that serve the A train. Of
+these, 17 are ADA compliant.
