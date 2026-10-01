@@ -343,7 +343,7 @@ baseline age.
 
 A total of 483 participants were recruited. After removing 4 participants who did not meet the inclusion criterion, 479 participants remained, and 93 of them developed MCI during follow-up. The average baseline age was 65 years, and 30% of women in the study were APOE4 carriers.
 
-##Amyloid
+## Amyloid biomarker data
 ```{r}
 mci_amyloid_df =
   read_csv(
@@ -351,8 +351,32 @@ mci_amyloid_df =
     skip = 1,
     na = c("", "NA", ".", "Na")
   ) |>
-  janitor::clean_names()
+  janitor::clean_names() |>
+  rename(id = study_id) |>
+  pivot_longer(
+    baseline:time_8,
+    names_to = "time",
+    names_prefix = "time_",
+    values_to = "amyloid_ratio"
+  ) |>
+  mutate(
+    time = replace(time, time == "baseline", "0"),
+    time = as.numeric(time)
+  )
 
 mci_amyloid_df
 ```
 
+Like the baseline file, the amyloid file begins with a line describing the
+variables, so I skipped it at import. Missing values in this file are coded
+inconsistently as both `NA` and `Na`; because `Na` was not initially
+recognized as missing, all amyloid columns were read as character. I
+added `Na` to the missing value codes at import, which resolved this issue.
+I cleaned the variable names, renamed `study_id` to `id` to match the
+baseline data, and used `pivot_longer()` to convert the five measurement
+columns (baseline and years 2, 4, 6, and 8) into a `time` variable and an
+`amyloid_ratio` variable. The baseline visit was recoded as time 0, and
+`time` was converted to numeric.
+
+The tidy amyloid dataset has 2435 rows and 3 columns, with each row representing one
+participant at one visit. Some amyloid measurements are missing, and these were retained.
