@@ -414,3 +414,32 @@ amyloid_not_recruited_df
 ```
 A total of 8 eligible participants appear in the baseline data but have no amyloid measurements, so no biomarker trajectory is available for them. Conversely, 16 participants appear in the amyloid data but not in the eligible baseline data. Of these, 4 were recruited but excluded because their MCI onset occurred at or before the study baseline, and 12 (IDs 484 to 495) do not appear in the baseline data at all, so their demographic information is unavailable. Because demographic and biomarker information are both needed to study biomarker trajectories, only participants who appear in both datasets are retained in the combined data below.
 
+
+## Combine and export data
+```{r}
+mci_combined_df =
+  inner_join(
+    mci_baseline_eligible_df,
+    mci_amyloid_df,
+    by = "id"
+  )
+
+mci_combined_df
+
+write_csv(
+  mci_combined_df,
+  "data/mci_combined.csv"
+)
+
+```
+
+I used `inner_join()` so that only participants who appear in both the
+eligible baseline data and the amyloid data are retained. The resulting
+dataset includes `r mci_combined_df |> distinct(id) |> nrow()`
+participants and has `r nrow(mci_combined_df)` rows and
+`r ncol(mci_combined_df)` columns. Each row represents one participant at
+one visit, and baseline demographic variables (`current_age`, `sex`,
+`education`, `apoe4`, and `age_at_onset`) are repeated across all visits
+for the same participant.
+
+
