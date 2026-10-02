@@ -380,3 +380,37 @@ columns (baseline and years 2, 4, 6, and 8) into a `time` variable and an
 
 The tidy amyloid dataset has 2435 rows and 3 columns, with each row representing one
 participant at one visit. Some amyloid measurements are missing, and these were retained.
+
+
+## Compare participants across datasets
+```{r}
+baseline_only_df =
+  anti_join(
+    mci_baseline_eligible_df,
+    mci_amyloid_df,
+    by = "id"
+  )
+
+baseline_only_df
+
+amyloid_only_df =
+  anti_join(
+    mci_amyloid_df,
+    mci_baseline_eligible_df,
+    by = "id"
+  ) |>
+  distinct(id)
+
+amyloid_only_df
+
+amyloid_not_recruited_df =
+  anti_join(
+    amyloid_only_df,
+    mci_baseline_df,
+    by = "id"
+  )
+
+amyloid_not_recruited_df
+```
+A total of 8 eligible participants appear in the baseline data but have no amyloid measurements, so no biomarker trajectory is available for them. Conversely, 16 participants appear in the amyloid data but not in the eligible baseline data. Of these, 4 were recruited but excluded because their MCI onset occurred at or before the study baseline, and 12 (IDs 484 to 495) do not appear in the baseline data at all, so their demographic information is unavailable. Because demographic and biomarker information are both needed to study biomarker trajectories, only participants who appear in both datasets are retained in the combined data below.
+
