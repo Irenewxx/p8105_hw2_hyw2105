@@ -46,16 +46,6 @@ subway_df =
 subway_df
 ```
 
-The cleaned dataset contains information on each entrance and exit of NYC
-subway stations, including the subway line, station name, station latitude
-and longitude, the routes served (`route1` to `route11`), whether entry is
-allowed, vending availability, entrance type, and ADA compliance. I imported
-the data with relative paths, specified `route8` to `route11` as character
-at import so that all route variables share the same type, cleaned the
-variable names, retained the relevant variables, and converted `entry` from
-a YES/NO character variable to a logical variable. The resulting dataset has
-`r nrow(subway_df)` rows and `r ncol(subway_df)` columns.
-
 These data are not tidy: route information is spread across 11 columns, so
 the route number is stored in the column names rather than as its own
 variable.
@@ -88,12 +78,7 @@ subway_df |>
 The mean is 0.3770492.
 
 
-## Reformat route information
-To make route number and route name distinct variables, I used
-`pivot_longer()` to convert `route1` to `route11` into two variables:
-`route_number` and `route_name`. Because most entrances serve only a few
-routes, many of the route columns were empty; I removed rows with missing
-`route_name`, since these do not correspond to any actual route.
+## Data-reformating
 ```{r}
 subway_tidy_df =
   subway_df |>
@@ -157,7 +142,7 @@ mr_trash_df =
 mr_trash_df
 ```
 
-##Professor Trash Wheel and Gwynns Falls
+
 ```{r}
 professor_trash_df =
   readxl::read_excel(
@@ -188,7 +173,6 @@ gwynnda_trash_df =
 gwynnda_trash_df
 ```
 
-There are 132 rows in professor_trash_df and 349 rows in gwynnda_trash_df.
 
 ## Combine Trash Wheel datasets
 ```{r}
@@ -202,7 +186,7 @@ trash_wheel_df =
 
 trash_wheel_df
 ```
-There are 1,188 rows（707 + 132 + 349）and 15 columns，count(). And we can see there that mr has 707、professor has 132、gwynnda has 349.
+There are 1,188 rows and 15 columns. And we can see there that mr_trash_df has 707 rows and 15 columns, professor_trash_df has 132 rows and 14 columns and gwynnda_trash_df has 349 rows and 13 columns.
 
 ##filter → pull → vector summary
 ```{r}
@@ -412,6 +396,8 @@ amyloid_not_recruited_df =
 
 amyloid_not_recruited_df
 ```
+
+
 A total of 8 eligible participants appear in the baseline data but have no amyloid measurements, so no biomarker trajectory is available for them. Conversely, 16 participants appear in the amyloid data but not in the eligible baseline data. Of these, 4 were recruited but excluded because their MCI onset occurred at or before the study baseline, and 12 (IDs 484 to 495) do not appear in the baseline data at all, so their demographic information is unavailable. Because demographic and biomarker information are both needed to study biomarker trajectories, only participants who appear in both datasets are retained in the combined data below.
 
 
@@ -441,5 +427,8 @@ participants and has `r nrow(mci_combined_df)` rows and
 one visit, and baseline demographic variables (`current_age`, `sex`,
 `education`, `apoe4`, and `age_at_onset`) are repeated across all visits
 for the same participant.
+
+Claude Ai is used to support trouble-shooting while running the code chunks.
+
 
 
